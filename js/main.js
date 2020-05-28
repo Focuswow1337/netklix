@@ -66,20 +66,22 @@ const renderCard = data => {
 
             const posterImg = poster ? IMG_URL + poster : '../img/no-poster.jpg';
             const backdropImg = backdrop ? IMG_URL + backdrop : '';
-            // const voteElem = vote ? `<span class="tv-card__vote">${voteElem}</span>` : '';
+            const voteElem = vote ? `<span class="tv-card__vote">${vote}</span>` : '';
 
             const card = document.createElement('li');
             card.classList.add('tv-show__item');
 
             card.innerHTML = `
                         <a href="#" id="${id}" class="tv-card">
-                        <span class="tv-card__vote">${vote}</span>
+                        ${voteElem}
                             <img class="tv-card__img"
                                 src="${posterImg}"
                                 data-backdrop="${backdropImg}"
                                 alt="${title}">
                             <h4 class="tv-card__head">${title}</h4>
                         </a>`;
+
+                        // <span class="tv-card__vote">${vote}</span>
 
             preloader.remove(); //удаляем прелоадер
 
