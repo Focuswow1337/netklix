@@ -49,42 +49,47 @@ const DBService = class {
     }
 }
 
-console.log(new DBService().getSearchResult('Няня'));
-
 const renderCard = data => {
     console.log(data);
-    tvShowsList.textContent = '';
 
-    data.results.forEach(item => {
+    if(data.total_results !== 0) {
+        tvShowsList.textContent = '';
+        data.results.forEach(item => {
 
-        const {
-            name: title, 
-            backdrop_path: backdrop, 
-            vote_average: vote, 
-            poster_path: poster,
-            id
-        } = item;
+            const {
+                name: title, 
+                backdrop_path: backdrop, 
+                vote_average: vote, 
+                poster_path: poster,
+                id
+            } = item;
 
-        const posterImg = poster ? IMG_URL + poster : '../img/no-poster.jpg';
-        const backdropImg = backdrop ? IMG_URL + backdrop : '';
-        // const voteElem = vote ? `<span class="tv-card__vote">${voteElem}</span>` : '';
+            const posterImg = poster ? IMG_URL + poster : '../img/no-poster.jpg';
+            const backdropImg = backdrop ? IMG_URL + backdrop : '';
+            // const voteElem = vote ? `<span class="tv-card__vote">${voteElem}</span>` : '';
 
-        const card = document.createElement('li');
-        card.classList.add('tv-show__item');
+            const card = document.createElement('li');
+            card.classList.add('tv-show__item');
 
-        card.innerHTML = `
-                    <a href="#" id="${id}" class="tv-card">
-                    <span class="tv-card__vote">${vote}</span>
-                        <img class="tv-card__img"
-                            src="${posterImg}"
-                            data-backdrop="${backdropImg}"
-                            alt="${title}">
-                        <h4 class="tv-card__head">${title}</h4>
-                    </a>`;
+            card.innerHTML = `
+                        <a href="#" id="${id}" class="tv-card">
+                        <span class="tv-card__vote">${vote}</span>
+                            <img class="tv-card__img"
+                                src="${posterImg}"
+                                data-backdrop="${backdropImg}"
+                                alt="${title}">
+                            <h4 class="tv-card__head">${title}</h4>
+                        </a>`;
 
-        preloader.remove(); //удаляем прелоадер
-        tvShowsList.append(card);
-    });
+            preloader.remove(); //удаляем прелоадер
+
+            tvShowsList.append(card);
+        });
+    }
+    else {
+        tvShowsList.textContent = "Упс! Ничего не найдено!";
+        preloader.remove();
+    }
 };
 
 /* <-- listeners --> */
@@ -92,12 +97,13 @@ searchForm.addEventListener('submit', event => {
     event.preventDefault();
 
     const value = searchFormInput.value.trim();
-    if(value) {
-        tvShows.append(preloader); //добавляем прелоадер
-        new DBService().getSearchResult(value).then(renderCard);
-    }
+    tvShowsList.textContent = '';
+    tvShows.append(preloader); //добавляем прелоадер
+    new DBService().getSearchResult(value).then(renderCard);
+
     searchFormInput.value = '';
 });
+
 
 // show left menu
 hamburger.addEventListener('click', () => {
@@ -157,9 +163,11 @@ tvShowsList.addEventListener('click', event => {
     event.preventDefault();
     const target = event.target;
     const card = target.closest('.tv-card')
+    console.log(target);
 
-    if(card) {
 
+    if(card && target.src != '../img/no-poster.jpg') {
+        tvShows.append(preloader);
         new DBService().getTvShow(card.id)
             .then( data => {
                 console.log(data);
@@ -178,6 +186,7 @@ tvShowsList.addEventListener('click', event => {
             .then(() => {
                 document.body.style.overflow = 'hidden';
                 modal.classList.remove('hide');
+                preloader.remove();
             })
     }
 });
